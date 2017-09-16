@@ -8,13 +8,13 @@ import cv2
 # 创建参数解析器并解析参数
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="path to the video file")
-ap.add_argument("-a", "--min-area", type=int, default=500, help="minimum area size")
+ap.add_argument("-a", "--min-area", type=int, default=5000, help="minimum area size")
 args = vars(ap.parse_args())
 
 # 如果video参数为None，那么我们从摄像头读取数据
 if args.get("video", None) is None:
     camera = cv2.VideoCapture(0)
-    time.sleep(0.25)
+    time.sleep(1)
 
 # 否则我们读取一个视频文件
 else:
@@ -24,6 +24,8 @@ else:
 firstFrame = None
 
 # 遍历视频的每一帧
+#对帧计数
+count = 0
 while True:
     # 获取当前帧并初始化occupied/unoccupied文本
     (grabbed, frame) = camera.read()
@@ -36,7 +38,6 @@ while True:
     # 调整该帧的大小，转换为灰阶图像并且对其进行高斯模糊
     frame = imutils.resize(frame, width=500)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.cvtColor(frame, cv2.CV_8UC1)
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
     # 如果第一帧是None，对其进行初始化
@@ -46,7 +47,7 @@ while True:
 
 # 计算当前帧和第一帧的不同
     frameDelta = cv2.absdiff(firstFrame, gray)
-    thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
+    thresh = cv2.threshold(frameDelta, 15, 255, cv2.THRESH_BINARY)[1]
 
     # 扩展阀值图像填充孔洞，然后找到阀值图像上的轮廓
     thresh = cv2.dilate(thresh, None, iterations=2)
@@ -55,8 +56,8 @@ while True:
     # 遍历轮廓
     for c in cnts:
         # if the contour is too small, ignore it
-        if cv2.contourArea(c) < args["min_area"]:
-            continue
+        # if cv2.contourArea(c) < args["min_area"]:
+        #     continue
 
         # compute the bounding box for the contour, draw it on the frame,
         # and update the text
@@ -73,6 +74,7 @@ while True:
         (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
     # 显示当前帧并记录用户是否按下按键
+    cv2.imshow("First Frame", firstFrame)
     cv2.imshow("Security Feed", frame)
     cv2.imshow("Thresh", thresh)
     cv2.imshow("Frame Delta", frameDelta)
@@ -82,6 +84,7 @@ while True:
     if key == ord("q"):
         break
 
+    count += 1
 # 清理摄像机资源并关闭打开的窗口
 camera.release()
 cv2.destroyAllWindows()

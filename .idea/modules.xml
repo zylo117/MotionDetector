@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/MotionDetector.iml" filepath="$PROJECT_DIR$/.idea/MotionDetector.iml" />
       <module fileurl="file://$PROJECT_DIR$/../motion_detector/.idea/MotionDetector.iml" filepath="$PROJECT_DIR$/../motion_detector/.idea/MotionDetector.iml" />
     </modules>
   </component>
